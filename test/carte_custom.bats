@@ -19,7 +19,11 @@ setup() {
   DOCKER_ENV="$DOCKER_ENV -e CARTE_MASTER_USER=masteruser"
   DOCKER_ENV="$DOCKER_ENV -e CARTE_MASTER_PASSWORD=masterpassword"
   DOCKER_ENV="$DOCKER_ENV -e CARTE_MASTER_IS_MASTER=Y"
-  CONTAINER=$( docker run -d -p=8888:8888 $DOCKER_ENV --name=pdi_test_$BATS_TEST_NUMBER $IMAGE )
+
+  NAME=pdi_test_$BATS_TEST_NUMBER
+  remove_container_by_name $NAME
+
+  CONTAINER=$( docker run -d -p=8888:8888 $DOCKER_ENV --name=$NAME $IMAGE )
   TIMEOUT=60
   until [ "$TIMEOUT" -eq 0 ] || [ $( docker inspect -f {{.State.Running}} $CONTAINER ) = "true" ]; do
     sleep 1
