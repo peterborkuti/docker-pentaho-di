@@ -3,8 +3,8 @@ FROM alpine as builder
 MAINTAINER Aloysius Lim
 MAINTAINER Peter Borkuti
 
-ENV PDI_RELEASE=5.3 \
-    PDI_VERSION=5.3.0.0-213 \
+ENV PDI_RELEASE=8.2 \
+    PDI_VERSION=8.2.0.0-342 \
     PDI_HOME=/opt/pentaho-di \
     KETTLE_HOME=/pentaho-di
 
@@ -24,8 +24,8 @@ RUN unzip -q /tmp/pdi-ce-${PDI_VERSION}.zip -d $PDI_HOME && \
 
 FROM openjdk:8-jre-alpine
 
-ENV PDI_RELEASE=5.3 \
-    PDI_VERSION=5.3.0.0-213 \
+ENV PDI_RELEASE=8.2 \
+    PDI_VERSION=8.2.0.0-342 \
     PDI_HOME=/opt/pentaho-di \
     KETTLE_HOME=/pentaho-di
 
