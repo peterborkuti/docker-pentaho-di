@@ -1,5 +1,4 @@
-FROM openjdk:8-jre-alpine
-
+FROM alpine as builder
 
 MAINTAINER Aloysius Lim
 MAINTAINER Peter Borkuti
@@ -9,22 +8,33 @@ ENV PDI_RELEASE=5.3 \
     PDI_HOME=/opt/pentaho-di \
     KETTLE_HOME=/pentaho-di
 
-RUN apk --no-cache add curl
-RUN apk --no-cache add bash
-
-RUN mkdir -p $PDI_HOME
-RUN mkdir $KETTLE_HOME
-
 #
 # You should download pdi-ce-${PDI_VERSION}.zip into this directory
 # BEFORE trying to create docker build
 # http://downloads.sourceforge.net/project/pentaho/Data%20Integration/${PDI_RELEASE}/pdi-ce-${PDI_VERSION}.zip
 #
 
+RUN mkdir -p $PDI_HOME
+
 COPY pdi-ce-${PDI_VERSION}.zip /tmp
 
 RUN unzip -q /tmp/pdi-ce-${PDI_VERSION}.zip -d $PDI_HOME && \
     rm /tmp/pdi-ce-${PDI_VERSION}.zip
+
+
+FROM openjdk:8-jre-alpine
+
+ENV PDI_RELEASE=5.3 \
+    PDI_VERSION=5.3.0.0-213 \
+    PDI_HOME=/opt/pentaho-di \
+    KETTLE_HOME=/pentaho-di
+
+RUN apk --no-cache add bash
+
+RUN mkdir -p $PDI_HOME
+RUN mkdir $KETTLE_HOME
+
+COPY --from=builder $PDI_HOME $PDI_HOME
 
 ENV PATH=$PDI_HOME/data-integration:$PATH
 
