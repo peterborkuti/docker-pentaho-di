@@ -2,7 +2,7 @@
 
 setup() {
   load test_env
-  : ${IMAGE:=abtpeople/pentaho-di:$TAG-test-kitchenpan}
+  : ${IMAGE:=$IMG_NAME:$TEST_TAG}
   : ${NAME:=pdi_test_$BATS_TEST_NUMBER}
 
   remove_container_by_name $NAME

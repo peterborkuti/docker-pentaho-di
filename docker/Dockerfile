@@ -1,12 +1,24 @@
-FROM alpine as builder
+ARG PDI_RELEASE=8.2
+ARG PDI_VERSION=8.2.0.0-342
+ARG PDI_HOME=/opt/pentaho-di
+ARG KETTLE_HOME=/pentaho-di
+
+FROM alpine as base
 
 MAINTAINER Aloysius Lim
 MAINTAINER Peter Borkuti
 
-ENV PDI_RELEASE=8.2 \
-    PDI_VERSION=8.2.0.0-342 \
-    PDI_HOME=/opt/pentaho-di \
-    KETTLE_HOME=/pentaho-di
+ARG PDI_RELEASE
+ARG PDI_VERSION
+ARG PDI_HOME
+ARG KETTLE_HOME
+
+ENV PDI_RELEASE=$PDI_RELEASE \
+    PDI_VERSION=$PDI_VERSION \
+    PDI_HOME=$PDI_HOME \
+    KETTLE_HOME=$KETTLE_HOME
+
+FROM base as builder
 
 #
 # You should download pdi-ce-${PDI_VERSION}.zip into this directory
@@ -24,10 +36,15 @@ RUN unzip -q /tmp/pdi-ce-${PDI_VERSION}.zip -d $PDI_HOME && \
 
 FROM openjdk:8-jre-alpine
 
-ENV PDI_RELEASE=8.2 \
-    PDI_VERSION=8.2.0.0-342 \
-    PDI_HOME=/opt/pentaho-di \
-    KETTLE_HOME=/pentaho-di
+ARG PDI_RELEASE
+ARG PDI_VERSION
+ARG PDI_HOME
+ARG KETTLE_HOME
+
+ENV PDI_RELEASE=$PDI_RELEASE \
+    PDI_VERSION=$PDI_VERSION \
+    PDI_HOME=$PDI_HOME \
+    KETTLE_HOME=$KETTLE_HOME
 
 RUN apk --no-cache add bash
 

@@ -1,38 +1,41 @@
-tag = 8.2
+# exported variables will be available in bats files too
+export TAG := 8.2
+export TEST_TAG := $(TAG)-test-kitchenpan
+export IMG_NAME := abtpeople/pentaho-di
 
-build_dir = build
-VPATH = docker:$(build_dir)
+BUILD_DIR := build
+VPATH := docker:$(BUILD_DIR)
 
 all: image
 
 .PHONY: all images-test test test-* clean clean-*
 
-$(build_dir):
-	mkdir $(build_dir)
+$(BUILD_DIR):
+	mkdir $(BUILD_DIR)
 
-image: Dockerfile docker-entrypoint.sh carte_config_master.xml carte_config_slave.xml $(build_dir)
-	docker build -t abtpeople/pentaho-di:$(tag) docker
-	touch $(build_dir)/$@
+image: Dockerfile docker-entrypoint.sh carte_config_master.xml carte_config_slave.xml $(BUILD_DIR)
+	docker build -t $(IMG_NAME):$(TAG) docker
+	touch $(BUILD_DIR)/$@
 
 images-test: image-test-kitchenpan
 
 image-test-kitchenpan: test/docker-kitchenpan/Dockerfile test/docker-kitchenpan/.kettle/* \
-		test/docker-kitchenpan/repo/* $(build_dir)
-	docker build -t abtpeople/pentaho-di:$(tag)-test-kitchenpan test/docker-kitchenpan
-	touch $(build_dir)/$@
+		test/docker-kitchenpan/repo/* $(BUILD_DIR)
+	docker build -t $(IMG_NAME):$(TEST_TAG) test/docker-kitchenpan
+	touch $(BUILD_DIR)/$@
 
 test: image image-test-kitchenpan
-	TAG=$(tag) bats test
+	bats test
 
 clean: clean-image clean-images-test
-	-rmdir $(build_dir)
+	-rmdir $(BUILD_DIR)
 
 clean-image:
-	-docker rmi abtpeople/pentaho-di:$(tag)
-	-rm $(build_dir)/image
+	-docker rmi $(IMG_NAME):$(TAG)
+	-rm $(BUILD_DIR)/image
 
 clean-images-test: clean-image-test-kitchenpan
 
 clean-image-test-kitchenpan:
-	-docker rmi abtpeople/pentaho-di:$(tag)-test-kitchenpan
-	-rm $(build_dir)/image-test-kitchenpan
+	-docker rmi $(IMG_NAME):$(TEST_TAG)
+	-rm $(BUILD_DIR)/image-test-kitchenpan
