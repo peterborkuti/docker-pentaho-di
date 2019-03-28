@@ -1,9 +1,13 @@
+#SHELL := /usr/bin/env bash
+
 # exported variables will be available in bats files too
 export TAG := 8.2
 export TEST_TAG := $(TAG)-test-kitchenpan
 export IMG_NAME := abtpeople/pentaho-di
+export UTEST_TAG := $(TAG)-unittest
 
 BUILD_DIR := build
+UNIT_TEST_DIR := unit-test/docker/home/
 VPATH := docker:$(BUILD_DIR)
 
 all: image
@@ -24,11 +28,34 @@ image-test-kitchenpan: test/docker-kitchenpan/Dockerfile test/docker-kitchenpan/
 	docker build -t $(IMG_NAME):$(TEST_TAG) test/docker-kitchenpan
 	touch $(BUILD_DIR)/$@
 
-test: image image-test-kitchenpan
+image-unittest: unit-test/docker/Dockerfile unit-test/docker/home/.kettle/* \
+		unit-test/docker/home/* $(BUILD_DIR)
+	docker build -t $(IMG_NAME):$(UTEST_TAG) unit-test/docker
+	touch $(BUILD_DIR)/$@
+
+test: image image-test-kitchenpan copy-kettle-home
 	bats test
+
+unit-test: image copy-kettle-home image-unittest
+	unit-test/unit-test.sh "$(IMG_NAME):$(UTEST_TAG)"
+
+copy-kettle-home: clean-kettle-home
+ifeq ($(KETTLE_HOME),)
+$(error KETTLE_HOME is222 not set)
+endif
+	cp -R $(KETTLE_HOME)/* $(UNIT_TEST_DIR)
+	mkdir $(UNIT_TEST_DIR).kettle
+	grep -v PENTAHO_METASTORE_FOLDER $(KETTLE_HOME)/.kettle/kettle.properties > $(UNIT_TEST_DIR).kettle/kettle.properties
+	echo -e '\nPENTAHO_METASTORE_FOLDER=/pentaho-di' >> $(UNIT_TEST_DIR).kettle/kettle.properties
+
+clean-kettle-home:
+	-rm -rf $(UNIT_TEST_DIR)*
+	-rm -rf $(UNIT_TEST_DIR).kettle
 
 clean: clean-image clean-images-test
 	-rmdir $(BUILD_DIR)
+	-rm -rf $(UNIT_TEST_DIR)*
+	-rm -rf $(UNIT_TEST_DIR).kettle
 
 clean-image:
 	-docker rmi $(IMG_NAME):$(TAG)
