@@ -46,7 +46,8 @@ endif
 	cp -R $(KETTLE_HOME)/* $(UNIT_TEST_DIR)
 	mkdir $(UNIT_TEST_DIR).kettle
 	grep -v PENTAHO_METASTORE_FOLDER $(KETTLE_HOME)/.kettle/kettle.properties > $(UNIT_TEST_DIR).kettle/kettle.properties
-	echo -e '\nPENTAHO_METASTORE_FOLDER=/pentaho-di' >> $(UNIT_TEST_DIR).kettle/kettle.properties
+	echo 'PENTAHO_METASTORE_FOLDER=/pentaho-di' >> $(UNIT_TEST_DIR).kettle/kettle.properties
+	sed -i -e "s@$(KETTLE_HOME)@/pentaho-di@" $(UNIT_TEST_DIR)metastore/pentaho/Kettle\ Transformation\ Unit\ Test/*.xml
 
 clean-kettle-home:
 	-rm -rf $(UNIT_TEST_DIR)*
@@ -60,6 +61,7 @@ clean: clean-image clean-images-test
 clean-image:
 	-docker rmi $(IMG_NAME):$(TAG)
 	-rm $(BUILD_DIR)/image
+	-rm $(BUILD_DIR)/image-unittest
 
 clean-images-test: clean-image-test-kitchenpan
 

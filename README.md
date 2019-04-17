@@ -165,3 +165,31 @@ COPY script3.sh /docker-entrypoint.d/
 
 ...
 ```
+
+
+## Running pentaho-dataset unit tests
+
+1. make clean
+
+2. set your KETTLE_HOME, example: export KETTLE_HOME=/home/peter/kettle-home-2
+
+3. make copy-kettle-home
+
+4. make unit-test
+
+The output will be something like this:
+
+```
+1..2
+ok 1 'tr-1 Test 1'
+not ok 2 'tr-1 Test 2'
+# 2019/04/17 13:45:14 - tr-1 - Unit test 'tr-1 Test 2' failed, 1 errors detected, 1 comments to report.
+# 2019/04/17 13:45:14 - tr-1 - ----------------------------------------------
+# 2019/04/17 13:45:14 - tr-1 - Mapping output specification - bad : Validation againt golden data failed for row number 1: step value [A] does not correspond to data set value [a]
+# 2019/04/17 13:45:14 - tr-1 - ----------------------------------------------
+# 2019/04/17 13:45:14 - Execute Unit Tests.0 - Finished processing (I=0, O=0, R=0, W=3, U=0, E=0)
+```
+
+which is a TAP compatible output. See: https://en.wikipedia.org/wiki/Test_Anything_Protocol
+
+You can find the full output of the running docker in ../log.txt and err.txt

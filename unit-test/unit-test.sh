@@ -1,19 +1,18 @@
 #!/usr/bin/env bash
 
-echo "I am running with $1"
-exit
+# input parameter $1 should be the image name:tag
+
+IMAGE=$1
+CONTAINER_NAME=pentahounittest
 
 
-remove_container_by_name() {
-    NAME=$1
-    C_ID=$( docker ps -a --no-trunc --filter name=^/${NAME}$|grep -v "CONTAINER" |tail -1|awk '{print $1;}' )
-    if [ ! -z "$C_ID" ]; then
-        docker container stop $C_ID
-	docker container rm $C_ID
-    fi;
-}
+# docker run --rm must delete the container after running, however, sometimes it does not do it.
+# In this case, you have to delete the container manually which is named pentahounittest
+
 
 # quoting "$(...)" preserves multi lines output
+
+docker run --rm --name=$CONTAINER_NAME $IMAGE maitre.sh -f /pentaho-di/run-ut.ktr > log.txt 2> err.txt
 
 TEST_LINES="$( grep -n 'Unit test.*\(passed\|failed\)' log.txt )"
 TESTNAMES="$( echo $TESTNAME_LINES|sed -e 's/^.*Unit test //;s/ \(passed\|failed\).*//' )"
